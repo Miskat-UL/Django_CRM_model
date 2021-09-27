@@ -1,0 +1,22 @@
+{% extends 'accounts/main.html' %}
+
+{% load static %}
+
+
+{% block content %}
+
+    <br>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card card-body">
+
+                <form action="" method="post">
+                    {% csrf_token %}
+                    <a href="{% url 'home' %}" class="btn btn-warning">cancel</a>
+                    <input class="btn btn-danger" type="submit" value="Confirm delete">
+                </form>
+
+            </div>
+        </div>
+    </div>
+{% endblock %}
