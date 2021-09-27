@@ -1,6 +1,8 @@
 from django.shortcuts import render,redirect
 from .models import Product, Order, Tag, Customer
 from .forms import OrderForm
+from .filters import OrderFilter
+
 
 def home(request):
     customer = Customer.objects.all()
@@ -30,9 +32,12 @@ def products(request):
 def customers(request, pk):
     customer = Customer.objects.get(id=pk)
     orders = customer.order_set.all()
+    my_filters = OrderFilter(request.GET, queryset=orders)
+    orders = my_filters.qs
     context = {
         'customers': customer,
-        'orders': orders
+        'orders': orders,
+        'filter':my_filters
     }
     return render(request, 'accounts/customer.html', context)
 
