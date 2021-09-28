@@ -7,12 +7,20 @@
 
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
+            {% if request.user.is_stuff %}
+            
+
             <li class="nav-item active">
                 <a class="nav-link" href="{% url 'home' %}">Dashboard <span class="sr-only">(current)</span></a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="{% url 'product' %}">Products</a>
             </li>
+                {% else %}
+                <li class="nav-item">
+                <a class="nav-link" href="{% url 'account' %}">settings</a>
+            </li>
+            {% endif %}
 {#            <li class="nav-item">#}
 {#                <a class="nav-link" href="#">Link</a>#}
 {#            </li>#}
@@ -20,9 +28,9 @@
 {#                <a class="nav-link" href="#">Disabled</a>#}
 {#            </li>#}
         </ul>
-        <form class="form-inline my-2 my-lg-0">
-            <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-        </form>
+        <div class="d-flex">
+            <a href="{% url 'logout' %}" class="text-warning mr-4"><p>logout</p></a>
+            <a href="#"><p class="text-danger">{{ request.user }}</p></a>
+        </div>
     </div>
 </nav>
