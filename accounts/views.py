@@ -1,7 +1,23 @@
-from django.shortcuts import render,redirect
+from django.shortcuts import render, redirect
 from .models import Product, Order, Tag, Customer
-from .forms import OrderForm
+from django.contrib.auth.forms import UserCreationForm
+from .forms import OrderForm, CreateUserForm
 from .filters import OrderFilter
+
+
+def login(request):
+    context = {}
+    return render(request, 'accounts/login.html', context)
+
+
+def register(request):
+    form = CreateUserForm()
+    if request.method == "POST":
+        form = CreateUserForm(request.POST)
+        if form.is_valid():
+            form.save()
+    context = {'forms': form}
+    return render(request, 'accounts/register.html', context)
 
 
 def home(request):
@@ -37,7 +53,7 @@ def customers(request, pk):
     context = {
         'customers': customer,
         'orders': orders,
-        'filter':my_filters
+        'filter': my_filters
     }
     return render(request, 'accounts/customer.html', context)
 
