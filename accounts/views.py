@@ -1,84 +1,25 @@
 from django.shortcuts import render, redirect
 from .models import Product, Order, Tag, Customer
 from django.contrib.auth.forms import UserCreationForm
-from .forms import OrderForm, CreateUserForm, CustomerForm
+from .forms import OrderForm, CreateUserForm
 from .filters import OrderFilter
-from django.contrib import messages
-from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required
-from .decorators import unauthenticated_user, allowed_user, admin_only
-from django.contrib.auth.models import Group
 
 
-@unauthenticated_user
-def login_page(request):
-    if request.user.is_authenticated:
-        return redirect('/')
-    else:
-        if request.method == "POST":
-            username = request.POST.get('username')
-            password = request.POST.get('password')
-            user = authenticate(request, username=username, password=password)
-            if user is not None:
-                login(request, user)
-                return redirect('/')
-            else:
-                messages.info(request, "username or password in incorrect")
-
-        context = {}
-        return render(request, 'accounts/login.html', context)
+def login(request):
+    context = {}
+    return render(request, 'accounts/login.html', context)
 
 
-@unauthenticated_user
-def register_page(request):
+def register(request):
     form = CreateUserForm()
     if request.method == "POST":
         form = CreateUserForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            username = form.cleaned_data.get('username')
-            messages.success(request, 'User create successfull ' + username)
-            return redirect('/login')
+            form.save()
     context = {'forms': form}
     return render(request, 'accounts/register.html', context)
 
 
-@login_required(login_url='login')
-@allowed_user(allowed_roles=['customer'])
-def user_page(request):
-    orders = request.user.customer.order_set.all()
-    total_order = orders.count()
-    delivered = orders.filter(status="Delivered").count()
-    pending = orders.filter(status="pending").count()
-    print(orders)
-    context = {'orders': orders, 'total_order': total_order,
-               'delivered': delivered,
-               'pending': pending}
-    return render(request, 'accounts/user.html', context)
-
-
-@login_required(login_url='login')
-@allowed_user(allowed_roles=['customer'])
-def account_settings(request):
-    customer = request.user.customer
-    form = CustomerForm(instance=customer)
-
-    if request.method == "POST":
-        form = CustomerForm(request.POST, request.FILES, instance=customer)
-        if form.is_valid():
-            form.save()
-    context = {'form': form}
-    return render(request, 'accounts/account_setting.html', context)
-
-
-def logout_page(request):
-    logout(request)
-    return redirect('login')
-
-
-@login_required(login_url='login')
-# @allowed_user(allowed_roles=['Admin'])
-@admin_only
 def home(request):
     customer = Customer.objects.all()
     order = Order.objects.all()
@@ -96,8 +37,6 @@ def home(request):
     return render(request, 'accounts/dashboard.html', context)
 
 
-@login_required(login_url='login')
-@allowed_user(allowed_roles=['Admin'])
 def products(request):
     products = Product.objects.all()
     context = {
@@ -106,8 +45,6 @@ def products(request):
     return render(request, 'accounts/products.html', context)
 
 
-@login_required(login_url='login')
-@allowed_user(allowed_roles=['Admin'])
 def customers(request, pk):
     customer = Customer.objects.get(id=pk)
     orders = customer.order_set.all()
@@ -121,7 +58,6 @@ def customers(request, pk):
     return render(request, 'accounts/customer.html', context)
 
 
-@login_required(login_url='login')
 def create_order(request, pk):
     customer = Customer.objects.get(id=pk)
     form = OrderForm(initial={'customer': customer})
@@ -132,13 +68,12 @@ def create_order(request, pk):
             return redirect('/')
 
     context = {
-        'forms': form
+        'forms':form
     }
 
     return render(request, 'accounts/order_form.html', context)
 
 
-@login_required(login_url='login')
 def update_order(request, pk):
     order = Order.objects.get(id=pk)
     form = OrderForm(instance=order)
@@ -154,7 +89,6 @@ def update_order(request, pk):
     return render(request, 'accounts/order_form.html', context)
 
 
-@login_required(login_url='login')
 def delete_order(request, pk):
     order = Order.objects.get(id=pk)
 
